@@ -1,0 +1,43 @@
+Python
+Pandas
+NumPy
+Scikit-Learn
+TensorFlow
+PyTorch
+Machine Learning
+Deep Learning
+Artificial Intelligence
+SQL
+MySQL
+PostgreSQL
+MongoDB
+Power BI
+Tableau
+Matplotlib
+Seaborn
+Excel
+Flask
+FastAPI
+Django
+JavaScript
+TypeScript
+React
+Angular
+Node.js
+Express.js
+Java
+Spring Boot
+C
+C++
+C#
+.NET
+Docker
+Kubernetes
+AWS
+Azure
+Git
+GitHub
+REST API
+GraphQL
+HTML
+CSS

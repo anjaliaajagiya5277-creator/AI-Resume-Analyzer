@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Resume Screening System</title>
+
+    <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+</head>
+
+<body>
+
+    <header>
+
+        <div class="logo">
+
+            <i class="fa-solid fa-user-check"></i>
+
+            <span>AI Resume Screening</span>
+
+        </div>
+
+        <nav>
+
+            <a href="#">Home</a>
+            <a href="#">About</a>
+            <a href="#">Help</a>
+
+        </nav>
+
+    </header>
+
+
+    <main>
+
+        {% with messages = get_flashed_messages() %}
+
+        {% if messages %}
+
+        <div class="flash-container">
+
+            {% for message in messages %}
+
+            <div class="flash-message">
+
+                {{ message }}
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% endif %}
+
+        {% endwith %}
+    <form
+    method="POST"
+    action="/upload"
+    enctype="multipart/form-data">
+
+        <section class="hero">
+
+            <h1>
+
+                AI Resume Screening
+                <span>& Job Fit Analyzer</span>
+
+            </h1>
+
+            <p>
+
+                Upload a Job Description and Candidate Resume to
+                evaluate ATS score, skill matching and AI recommendation.
+
+            </p>
+
+        </section>
+
+
+
+        <section class="upload-section">
+
+            <div class="upload-card">
+
+                <div class="card-icon">
+                    <i class="fa-solid fa-file-lines"></i>
+                </div>
+
+                <h2>Job Description</h2>
+
+                <p>Upload PDF, DOCX or TXT</p>
+
+                <label class="upload-box">
+                    <input
+                    type="file"
+                    id="jdFile"
+                    name="job_description"
+                    accept=".pdf,.doc,.docx,.txt"
+                    hidden
+                    required>
+
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+
+                    <span>Select Job Description</span>
+
+                    <small id="jdName">No file selected</small>
+
+                </label>
+
+            </div>
+
+
+            <div class="upload-card">
+
+                <div class="card-icon">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+
+                <h2>Candidate Resume</h2>
+
+                <p>Upload Resume PDF</p>
+
+                <label class="upload-box">
+                    <input
+                    type="file"
+                    id="resumeFile"
+                    name="resume"
+                    accept=".pdf"
+                    hidden
+                    required>
+
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+
+                    <span>Select Resume</span>
+
+                    <small id="resumeName">No file selected</small>
+
+                </label>
+
+            </div>
+
+        </section>
+
+
+
+        <div class="button-area">
+
+            <button type="submit" id="analyzeBtn">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <span>Analyze Candidate</span>
+
+            </button>
+
+        </div>
+        <section class="dashboard">
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <h3>ATS Score</h3>
+
+                    <h1 id="atsScore">
+
+                    {% if ats_score %}
+
+                    {{ ats_score }}%
+
+                    {% else %}
+
+                    0%
+
+                    {% endif %}
+
+                    </h1>
+
+                    <div class="progress-bar">
+
+                        <div
+                            class="progress-fill"
+                            style="width: {{ ats_score if ats_score else 0 }}%;">
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <h3>Job Match</h3>
+
+                    <h1>
+
+                        {% if match_result %}
+
+                            {{ match_result.job_match }}%
+
+                        {% else %}
+
+                            0%
+
+                        {% endif %}
+
+                    </h1>
+
+                    <div class="progress-bar">
+                        <div class="progress-fill"style="width: {{ match_result['job_match'] if match_result else 0 }}%;">
+</div>
+                        
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <h3>Final Decision</h3>
+
+                    {% if match_result %}
+
+                    <div class="decision-badge
+
+                        {% if match_result['decision'] == 'Excellent Match' %}
+
+                            suitable
+
+                        {% elif match_result['decision'] == 'Good Match' %}
+
+                            suitable
+
+                        {% elif match_result['decision'] == 'Average Match' %}
+
+                            partial
+
+                        {% else %}
+
+                            not-suitable
+
+                        {% endif %}
+
+                        ">
+
+                    {{ match_result["decision"] }}
+
+                    </div>
+
+                    {% else %}
+
+                    <div class="decision-badge waiting">
+
+                    Waiting...
+
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div class="info-grid">
+
+                <div class="info-card">
+
+                    <h2>
+                        <i class="fa-solid fa-user"></i>
+                        Candidate Information
+                    </h2>
+
+                    <p>
+                        <strong>Name :</strong>
+
+                        {{ info.name if info else "--" }}
+                    </p>
+
+                    <p>
+                        <strong>Email :</strong>
+
+                        {{ info.email if info else "--" }}
+                    </p>
+
+                    <p>
+                        <strong>Phone :</strong>
+
+                        {{ info.phone if info else "--" }}
+                    </p>
+
+                    <p>
+                        <strong>Education :</strong>
+
+                        {% if info and info.education %}
+
+                            {{ info.education|join(", ") }}
+
+                        {% else %}
+
+                            --
+
+                        {% endif %}
+                    </p>
+
+                    <p>
+                        <strong>Experience :</strong>
+
+                        {% if info and info.experience %}
+
+                            {{ info.experience|join(", ") }}
+
+                        {% else %}
+
+                            --
+
+                        {% endif %}
+                    </p>
+
+                
+                </div>
+
+
+                <div class="info-card">
+
+                    <h2>
+
+                        <i class="fa-solid fa-link"></i>
+
+                        Resume Links
+
+                    </h2>
+
+                    <p>
+
+                        <strong>GitHub :</strong>
+
+                        {% if info and info.github != "Not Found" %}
+
+                        <a href="{{ info.github }}" target="_blank">
+
+                        {{ info.github }}
+
+                        </a>
+
+                        {% else %}
+
+                        --
+
+                        {% endif %}
+
+                    </p>
+
+                    <p>
+
+                        <strong>LinkedIn :</strong>
+
+                        {% if info and info.linkedin != "Not Found" %}
+
+                        <a href="{{ info.linkedin }}" target="_blank">
+
+                        {{ info.linkedin }}
+
+                        </a>
+
+                        {% else %}
+
+                        --
+
+                        {% endif %}
+
+                    </p>
+
+                    <p>
+
+                        <strong>Portfolio :</strong>
+
+                        {% if info and info.portfolio != "Not Found" %}
+
+                        <a href="{{ info.portfolio }}" target="_blank">
+
+                        {{ info.portfolio }}
+
+                        </a>
+
+                        {% else %}
+
+                        --
+
+                        {% endif %}
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="skills-grid">
+
+                <div class="info-card">
+
+                    <h2>
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        Matched Skills
+
+                    </h2>
+
+                    <ul>
+
+                        {% if match_result and match_result["matched_skills"] %}
+
+                        {% for skill in match_result["matched_skills"] %}
+
+                            <li>
+
+                                <i class="fa-solid fa-check"></i>
+
+                                {{ skill }}
+
+                            </li>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <li>Waiting for Analysis</li>
+
+                    {% endif %}
+                    </ul>
+
+                </div>
+
+
+                <div class="info-card">
+
+                    <h2>
+
+                        <i class="fa-solid fa-circle-xmark"></i>
+
+                        Missing Skills
+
+                    </h2>
+
+                    <ul>
+
+                        {% if match_result and match_result["missing_skills"] %}
+
+                            {% for skill in match_result["missing_skills"] %}
+
+                                <li>
+
+                                    <i class="fa-solid fa-xmark"></i>
+
+                                    {{ skill }}
+
+                                </li>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                            <li>Waiting for Analysis</li>
+
+                        {% endif %}
+
+                        </ul>
+                </div>
+
+            </div>
+<section class="info-grid">
+
+    <div class="info-card">
+
+        <h2>
+
+            <i class="fa-solid fa-file-lines"></i>
+
+            Job Description Analysis
+
+        </h2>
+
+        <p>
+
+            <strong>Education :</strong>
+
+            {% if jd_info and jd_info.education %}
+
+                {{ jd_info.education | join(", ") }}
+
+            {% else %}
+
+                --
+
+            {% endif %}
+
+        </p>
+
+        <p>
+
+            <strong>Experience :</strong>
+
+            {% if jd_info %}
+
+                {{ jd_info.experience }}
+
+            {% else %}
+
+                --
+
+            {% endif %}
+
+        </p>
+
+        <p>
+
+            <strong>Certifications :</strong>
+
+            {% if jd_info and jd_info.certifications %}
+
+                {{ jd_info.certifications | join(", ") }}
+
+            {% else %}
+
+                --
+
+            {% endif %}
+
+        </p>
+
+    </div>
+
+    <div class="info-card">
+
+        <h2>
+
+            <i class="fa-solid fa-list-check"></i>
+
+            Required Skills
+
+        </h2>
+
+        <ul>
+
+            {% if jd_info and jd_info.required_skills %}
+
+                {% for skill in jd_info.required_skills %}
+
+                    <li>{{ skill }}</li>
+
+                {% endfor %}
+
+            {% else %}
+
+                <li>No Skills Found</li>
+
+            {% endif %}
+
+        </ul>
+
+        <hr style="margin:20px 0;">
+
+        <h2>
+
+            <i class="fa-solid fa-star"></i>
+
+            Preferred Skills
+
+        </h2>
+
+        <ul>
+
+            {% if jd_info and jd_info.preferred_skills %}
+
+                {% for skill in jd_info.preferred_skills %}
+
+                    <li>{{ skill }}</li>
+
+                {% endfor %}
+
+            {% else %}
+
+                <li>Not Mentioned</li>
+
+            {% endif %}
+
+        </ul>
+
+    </div>
+
+</section>
+
+            <div class="ai-card">
+
+                <h2>
+
+                    <i class="fa-solid fa-robot"></i>
+
+                    AI Recommendation
+
+                </h2>
+
+                {% if ai_recommendation %}
+
+                <div class="ai-content">
+
+                    <pre>{{ ai_recommendation }}</pre>
+
+                </div>
+
+                {% else %}
+
+                <div class="ai-placeholder">
+
+                    Upload both files and click
+
+                    <strong>Analyze Candidate</strong>
+
+                    to generate an AI recommendation.
+
+                </div>
+
+                {% endif %}
+
+            </div>
+        </section>
+
+        </form>
+
+    </main>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+
+</html>
