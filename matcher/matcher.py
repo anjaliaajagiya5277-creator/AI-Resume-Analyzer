@@ -1,5 +1,5 @@
 from matcher.skill_normalizer import SkillNormalizer
-
+# i will do change in matcher
 class SkillMatcher:
 
     def __init__(self, resume_skills, jd_skills):
