@@ -1,6 +1,6 @@
 import fitz
 from docx import Document
-
+# //i will do change
 
 class JDParser:
 

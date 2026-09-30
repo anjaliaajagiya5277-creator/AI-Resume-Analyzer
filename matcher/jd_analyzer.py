@@ -1,6 +1,6 @@
 import os
 import re
-
+# i willl do change in jd analyzer
 class JDAnalyzer:
 
     def __init__(self, jd_text):
