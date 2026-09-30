@@ -1,5 +1,5 @@
 class ATSScorer:
-
+# hello i will do change in ats score
     def __init__(self, info, jd_info, match_result):
 
         self.info = info
